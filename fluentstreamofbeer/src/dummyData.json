@@ -1,0 +1,12 @@
+[
+    {
+        "id": "1",
+        "name": "Miller High Life",
+        "likes": "10"
+    },
+    {
+        "id": "2",
+        "name": "Fat Tire",
+        "likes": "3"
+    }
+]
