@@ -1,17 +1,19 @@
 import React from 'react';
 
-const Beerlist = props => {
+const BeerCard = props => {
     return (
         <ul className= "list-group">
-            <h4>ID: {props.id} | Name: {props.name}</h4>
-            <h5>Likes: {props.likes}</h5>
-            {/* {props.results.map(result => {
-                <li className="list-group-item" key={result.id}>
-                    <h3>{result.name} </h3><h4>Likes: {result.likes}</h4>
-                </li>
-            })}         */}
+            <h2>{props.name}</h2> 
+            <h6>ID# {props.id}</h6>
+            <h3>{props.likes} People Like This Beer</h3>
+            <button onClick = {props.increaseLikes} type="button" className="likeBtn btn btn-default btn-sm">
+                <span className="glyphicon glyphicon-thumbs-up"></span>  Like
+            </button>
+            <button onClick = {props.decreaseLikes} type="button" className="dislikeBtn btn btn-default btn-sm">
+                <span className="glyphicon glyphicon-thumbs-down"></span>  Dislike
+            </button>
         </ul>
     )
 }
 
-export default Beerlist;
+export default BeerCard;
