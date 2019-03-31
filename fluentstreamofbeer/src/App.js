@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
 import { Container, Row, Col } from 'reactstrap';
-import BeerCard from './components/BeerCard';
+import API from './components/API'
 import BeerCooler from './components/BeerCooler';
+import Footer from './components/Footer';
 import axios from 'axios';
 
 //Program Overview:
@@ -29,72 +30,7 @@ import axios from 'axios';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      id: 1,
-      name: null,
-      likes: 1,
-      beerlist: [],
-    }
-  }
 
-  getData = () => { //Workaround to get data
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    let targetUrl = 'https://beer.fluentcloud.com/v1/beer';
-    fetch(proxyUrl + targetUrl)
-      .then(res => res.json())
-      .then(data => {
-        { this.fillCooler(data) };
-        { this.selectedBeer(data) };
-      })
-      .catch(err => console.log(err));
-  }
-
-  // axiosGetData = () => { //Not working
-  //   axios({
-  //     url: "https://beer.fluentcloud.com/v1/beer/",
-  //     method: "get",
-  //     dataType: 'jsonp',
-  //     headers: { "Content-Type": "application/json" }
-  //   })
-  //     .then(res => {
-  //       console.log(`Axios Call completed: ${res}`)
-  //     });
-  // }
-
-  fillCooler = (data) => {
-    for (var i = 0; i < data.length; i++) {
-      console.log('Entry ' + [i] + ': ' + data[i].name);
-      
-    }
-    // const allBeersArray = data.map((beer) => <li>{beer}</li>)
-    // console.log(`fillCooler Beer: ${allBeersArray}`);
-  }
-
-  selectedBeer = (data) => {
-    const beerNum = (this.state.id) - 1;
-    this.setState({
-      id: data[beerNum].id,
-      name: data[beerNum].name,
-      likes: data[beerNum].likes
-    });
-  }
-
-  increaseLikes = () => {
-    this.setState({
-      likes: this.state.likes + 1
-    });
-    console.log('increased likes');
-  }
-
-  decreaseLikes = () => {
-    this.setState({
-      likes: this.state.likes - 1
-    });
-    console.log('decreased likes');
-  }
-
-  componentDidMount() {
-    { this.getData() }
   }
 
   render() {
@@ -104,19 +40,11 @@ class App extends Component {
           <h1>FluentStream (of BEER!)</h1>
         </header>
         <body>
-          <Container>
-            <Row>
-              <Col md="1" />
-              <Col md="7">
-                <BeerCooler name={this.state.beerlist.name} likes={this.state.beerlist.likes} />
-              </Col>
-              <Col md="auto">
-                <BeerCard id={this.state.id} name={this.state.name} likes={this.state.likes} increaseLikes={this.increaseLikes} decreaseLikes={this.decreaseLikes} />
-              </Col>
-              <Col md="1" />
-            </Row>
-          </Container>
+          <BeerCooler/>
         </body>
+        <footer>
+          {/* <Footer /> */}
+        </footer>
       </div>
     );
   }
