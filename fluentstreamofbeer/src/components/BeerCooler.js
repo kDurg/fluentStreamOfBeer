@@ -20,21 +20,12 @@ class BeerCooler extends React.Component {
       .catch(err => console.log(err));
   }
 
-  axiosGetData = () => { //Not working
-    axios({
-      url: "https://beer.fluentcloud.com/v1/beer/",
+  axiosGetData = () => {
+    return axios({
+      url: "https://cors-anywhere.herokuapp.com/https://beer.fluentcloud.com/v1/beer/",
       method: "get",
-      dataType: 'jsonp',
       headers: { "Content-Type": "application/json" }
     })
-      // .then(res => res.json())
-      .then(data => {
-        console.log(`Axios Call completed: ${data}`);
-        console.log(this[0].name)
-        { this.fillCooler(data) };
-        { this.selectedBeer(data) };
-      })
-      .catch(err => console.log(err));
   }
 
   fillCooler = (data) => {
@@ -44,7 +35,7 @@ class BeerCooler extends React.Component {
       likes: data[0].likes
     })
     for (var i = 0; i < data.length; i++) {
-      
+
       console.log('Entry ' + [i] + ': ' + data[i].name);
       // return (
       //   <>
@@ -61,42 +52,54 @@ class BeerCooler extends React.Component {
     // console.log(`fillCooler Beer: ${allBeersArray}`);
   }
 
-  selectedBeer = (data) => { //Take info from selected beer in beerCooler
+  selectedBeer = (beer) => { //Take info from selected beer in beerCooler
     this.setState({
       activeBeer: true,
-      activeID: null,
-      activeName: null,
-      activeLikes: null,
+      activeID: beer.id,
+      activeName: beer.name,
+      activeLikes: beer.likes,
     })
     console.log('Row Clicked');
-    // const beerNum = (this.state.id) - 1;
-    // this.setState({
-    //   id: data[beerNum].id,
-    //   name: data[beerNum].name,
-    //   likes: data[beerNum].likes
-    // });
   }
 
   increaseLikes = () => {
     this.setState({
-      likes: this.state.likes + 1
+      activeLikes: this.state.activeLikes + 1
     });
     console.log('increased likes');
   }
 
   decreaseLikes = () => {
     this.setState({
-      likes: this.state.likes - 1
+      activeLikes: this.state.activeLikes - 1
     });
     console.log('decreased likes');
   }
+
+  // updateDBLikes = () => {
+  //   return axios({
+  //     url: "https://cors-anywhere.herokuapp.com/https://beer.fluentcloud.com/v1/beer/",
+  //     method: "put",
+  //     headers: { "Content-Type": "application/json" }
+  //   })
+  // }
 
   AddBeer = (beer) => {
     console.log('Adding a new Beer');
   }
 
   componentDidMount() {
-    { this.getData() }
+    { this.axiosGetData()
+      .then(data => {
+        console.log(`Axios Call completed: ${data}`);
+        console.log(data.data)
+        // { this.fillCooler(data) };
+        // { this.selectedBeer(data) };
+        this.setState({
+          beerlist: data.data.slice(0,25)
+        })
+      })
+      .catch(err => console.log(err)); }
   }
 
   
@@ -138,11 +141,15 @@ class BeerCooler extends React.Component {
                     <td id='newBeerTextBox'><b>Click Here To Add A Beer</b></td>
                     <td />
                   </tr>
-                  <tr onClick={this.selectedBeer} >
-                    <td scope="row" >{this.state.id}</td>
-                    <td>{this.state.name}</td>
-                    <td>{this.state.likes}</td>
+                  
+                  {this.state.beerlist.map(beer => (
+                    <tr onClick={()=> this.selectedBeer(beer)} >
+                    <td scope="row" >{beer.id}</td>
+                    <td>{beer.name}</td>
+                    <td>{beer.likes}</td>
                   </tr>
+                  ))}
+
                 </tbody>
               </Table>
             </div>
@@ -150,9 +157,9 @@ class BeerCooler extends React.Component {
           <Col md="auto">
             <BeerCard
               activeBeer={this.state.activeBeer}
-              id={this.state.id}
-              name={this.state.name}
-              likes={this.state.likes}
+              id={this.state.activeID}
+              name={this.state.activeName}
+              likes={this.state.activeLikes}
               AddBeer={this.AddBeer}
               beerSelect={this.selectedBeer}
               decreaseLikes={this.decreaseLikes}
