@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import { Container, Row, Col } from 'reactstrap';
-import API from './components/API'
 import BeerCooler from './components/BeerCooler';
 import Footer from './components/Footer';
 import axios from 'axios';

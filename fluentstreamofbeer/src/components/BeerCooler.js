@@ -3,23 +3,13 @@ import { Table, Container, Row, Col } from 'reactstrap';
 import axios from 'axios';
 
 import BeerCard from './BeerCard';
-import API from './API'
+import AddBeer from './AddBeer';
 
 class BeerCooler extends React.Component {
-  
-  //---------------- Functions ----------------
-  getData = () => { //Workaround to get data
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    let targetUrl = 'https://beer.fluentcloud.com/v1/beer';
-    fetch(proxyUrl + targetUrl)
-      .then(res => res.json())
-      .then(data => {
-        { this.fillCooler(data) };
-        // { this.selectedBeer(data) };
-      })
-      .catch(err => console.log(err));
-  }
 
+  //---------------- Functions ----------------
+
+  //pull data from DB
   axiosGetData = () => {
     return axios({
       url: "https://cors-anywhere.herokuapp.com/https://beer.fluentcloud.com/v1/beer/",
@@ -28,31 +18,8 @@ class BeerCooler extends React.Component {
     })
   }
 
-  fillCooler = (data) => {
-    this.setState({
-      id: data[0].id,
-      name: data[0].name,
-      likes: data[0].likes
-    })
-    for (var i = 0; i < data.length; i++) {
-
-      console.log('Entry ' + [i] + ': ' + data[i].name);
-      // return (
-      //   <>
-      //     <tr>
-      //       <th scope="row">{data[i].id}</th>
-      //       <td>{data[i].name}</td>
-      //       <td>{data[i].likes}</td>
-      //     </tr>
-      //   </>
-      // )
-
-    }
-    // const allBeersArray = data.map((beer) => <li>{beer}</li>)
-    // console.log(`fillCooler Beer: ${allBeersArray}`);
-  }
-
-  selectedBeer = (beer) => { //Take info from selected beer in beerCooler
+  // take selected beer details to add them to active state -> present on beer card
+  selectedBeer = (beer) => {
     this.setState({
       activeBeer: true,
       activeID: beer.id,
@@ -62,47 +29,68 @@ class BeerCooler extends React.Component {
     console.log('Row Clicked');
   }
 
+  // Increasing and decreasing likes updates the state and DB
   increaseLikes = () => {
     this.setState({
       activeLikes: this.state.activeLikes + 1
-    });
-    console.log('increased likes');
+    })
+    console.log('increased likes' + this.state.activeLikes)
+    this.updateDBLikes();
   }
 
   decreaseLikes = () => {
     this.setState({
       activeLikes: this.state.activeLikes - 1
     });
-    console.log('decreased likes');
+    this.updateDBLikes();
   }
 
-  // updateDBLikes = () => {
-  //   return axios({
-  //     url: "https://cors-anywhere.herokuapp.com/https://beer.fluentcloud.com/v1/beer/",
-  //     method: "put",
-  //     headers: { "Content-Type": "application/json" }
-  //   })
-  // }
+  updateDBLikes = () => {
+    return axios({
+      url: "https://cors-anywhere.herokuapp.com/https://beer.fluentcloud.com/v1/beer/" + this.state.activeID,
+      method: "put",
+      headers: { "Content-Type": "application/json" },
+      data: { likes: (this.state.activeLikes) }
+    })
+      .then(this.updateBeerList())
+      .then(console.log(this.state.activeLikes))
+  }
 
   AddBeer = (beer) => {
-    console.log('Adding a new Beer');
+    this.setState({ newBeerName: document.getElementById("newestBeer").value }, () => {
+      return axios({
+        url: "https://cors-anywhere.herokuapp.com/https://beer.fluentcloud.com/v1/beer/",
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        data: {
+          name: this.state.newBeerName,
+          likes: 0,
+        }
+      })
+        .then(this.updateBeerList())
+        .then(this.axiosGetData());
+    })
+  }
+
+  updateBeerList() {
+    {
+      this.axiosGetData()
+      .then(data => {
+        this.setState({
+          beerlist: data.data.slice(0, 25)
+        })
+      })
+      .catch(err => console.log(err));
+    }
+    console.log(`Axios Call completed`);
+
   }
 
   componentDidMount() {
-    { this.axiosGetData()
-      .then(data => {
-        console.log(`Axios Call completed: ${data}`);
-        console.log(data.data)
-        // { this.fillCooler(data) };
-        // { this.selectedBeer(data) };
-        this.setState({
-          beerlist: data.data.slice(0,25)
-        })
-      })
-      .catch(err => console.log(err)); }
+    this.updateBeerList();
   }
 
-  
+
   //---------------- State/Render ----------------
   constructor(props) {
     super(props);
@@ -115,6 +103,7 @@ class BeerCooler extends React.Component {
       activeName: null,
       activeLikes: null,
       beerlist: [],
+      newBeerName: null
     }
   }
 
@@ -136,35 +125,29 @@ class BeerCooler extends React.Component {
                   </tr>
                 </thead>
                 <tbody >
-                  <tr className="addBeerRow" onClick={this.AddBeer}>
-                    <td scope="row" ></td>
-                    <td id='newBeerTextBox'><b>Click Here To Add A Beer</b></td>
-                    <td />
-                  </tr>
-                  
                   {this.state.beerlist.map(beer => (
-                    <tr onClick={()=> this.selectedBeer(beer)} >
-                    <td scope="row" >{beer.id}</td>
-                    <td>{beer.name}</td>
-                    <td>{beer.likes}</td>
-                  </tr>
+                    <tr key={beer.id} onClick={() => this.selectedBeer(beer)} >
+                      <td scope="row" >{beer.id}</td>
+                      <td>{beer.name}</td>
+                      <td>{beer.likes}</td>
+                    </tr>
                   ))}
 
                 </tbody>
               </Table>
             </div>
           </Col>
-          <Col md="auto">
+          <Col md="3">
             <BeerCard
               activeBeer={this.state.activeBeer}
               id={this.state.activeID}
               name={this.state.activeName}
               likes={this.state.activeLikes}
-              AddBeer={this.AddBeer}
               beerSelect={this.selectedBeer}
               decreaseLikes={this.decreaseLikes}
               increaseLikes={this.increaseLikes}
             />
+            <AddBeer submitBeer={this.AddBeer} />
           </Col>
         </Row >
       </Container >

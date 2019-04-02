@@ -24,6 +24,7 @@ const BeerCard = props => {
             <>
                 <p>Select a Beer for Details</p>
                 <p>Or click here to add a new beer</p>
+              <hr />
             </>
         )
     }
