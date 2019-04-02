@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Container, Row, Col } from 'reactstrap';
 import BeerCooler from './components/BeerCooler';
-import Footer from './components/Footer';
-import axios from 'axios';
 
 //Program Overview:
 // Create a program that uses GET, POST and PUT with a defined database. 
@@ -27,10 +24,6 @@ import axios from 'axios';
 // update local state and DB
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-
-  }
 
   render() {
     return (

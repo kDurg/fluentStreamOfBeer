@@ -9,6 +9,22 @@ class BeerCooler extends React.Component {
 
   //---------------- Functions ----------------
 
+
+
+  // Take pulled data from DB and display 25 most recent beers
+  updateBeerList() {
+    {
+      this.axiosGetData()
+      .then(data => {
+        this.setState({
+          beerlist: data.data.slice(0, 25)
+        })
+      })
+      .catch(err => console.log(err));
+      console.log('Updating Beer Cooler')
+    }
+  }
+
   //pull data from DB
   axiosGetData = () => {
     return axios({
@@ -16,6 +32,8 @@ class BeerCooler extends React.Component {
       method: "get",
       headers: { "Content-Type": "application/json" }
     })
+    .then(console.log(`Axios Call completed`));
+
   }
 
   // take selected beer details to add them to active state -> present on beer card
@@ -33,16 +51,15 @@ class BeerCooler extends React.Component {
   increaseLikes = () => {
     this.setState({
       activeLikes: this.state.activeLikes + 1
-    })
-    console.log('increased likes' + this.state.activeLikes)
-    this.updateDBLikes();
+    }, () => this.updateDBLikes())
+    console.log("Increased Likes")
   }
 
   decreaseLikes = () => {
     this.setState({
       activeLikes: this.state.activeLikes - 1
-    });
-    this.updateDBLikes();
+    }, () => this.updateDBLikes())
+    console.log("Decreased Likes")
   }
 
   updateDBLikes = () => {
@@ -50,12 +67,13 @@ class BeerCooler extends React.Component {
       url: "https://cors-anywhere.herokuapp.com/https://beer.fluentcloud.com/v1/beer/" + this.state.activeID,
       method: "put",
       headers: { "Content-Type": "application/json" },
-      data: { likes: (this.state.activeLikes) }
+      data: { likes: this.state.activeLikes }
     })
-      .then(this.updateBeerList())
-      .then(console.log(this.state.activeLikes))
+    .then(this.updateBeerList())
+    .then(console.log('Updated DB Likes'))
   }
 
+  // Add a beer to DB via POST 
   AddBeer = (beer) => {
     this.setState({ newBeerName: document.getElementById("newestBeer").value }, () => {
       return axios({
@@ -67,23 +85,8 @@ class BeerCooler extends React.Component {
           likes: 0,
         }
       })
-        .then(this.updateBeerList())
-        .then(this.axiosGetData());
+      .then (this.updateBeerList())
     })
-  }
-
-  updateBeerList() {
-    {
-      this.axiosGetData()
-      .then(data => {
-        this.setState({
-          beerlist: data.data.slice(0, 25)
-        })
-      })
-      .catch(err => console.log(err));
-    }
-    console.log(`Axios Call completed`);
-
   }
 
   componentDidMount() {
