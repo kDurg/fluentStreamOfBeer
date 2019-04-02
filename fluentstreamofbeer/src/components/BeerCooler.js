@@ -69,6 +69,7 @@ class BeerCooler extends React.Component {
       headers: { "Content-Type": "application/json" },
       data: { likes: this.state.activeLikes }
     })
+    .then(this.axiosGetData())
     .then(this.updateBeerList())
     .then(console.log('Updated DB Likes'))
   }
@@ -85,6 +86,7 @@ class BeerCooler extends React.Component {
           likes: 0,
         }
       })
+      .then(this.axiosGetData())
       .then (this.updateBeerList())
     })
   }
